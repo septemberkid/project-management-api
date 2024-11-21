@@ -1,9 +1,14 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { getClient, retrieveClient } from '@/features/client/queries';
+import {
+  getClient,
+  getClientOptions,
+  retrieveClient,
+} from '@/features/client/queries';
 import { cookieMiddleware } from '@/cookie-middleware';
 import {
   createClientSchema,
+  queryClientOptionsSchema,
   queryClientSchema,
   updateClientSchema,
 } from '@/features/client/schema';
@@ -22,6 +27,16 @@ const clientRoutes = new Hono()
     async (c) => {
       const query = c.req.valid('query');
       const result = await getClient(query);
+      return c.json(result);
+    },
+  )
+  .get(
+    '/options',
+    cookieMiddleware,
+    zValidator('query', queryClientOptionsSchema),
+    async (c) => {
+      const query = c.req.valid('query');
+      const result = await getClientOptions(query);
       return c.json(result);
     },
   )

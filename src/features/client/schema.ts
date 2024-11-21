@@ -29,3 +29,9 @@ export const queryClientSchema = z.object({
   sort_dir: z.string().optional(),
 });
 export type QueryClientSchema = z.infer<typeof queryClientSchema>;
+
+export const queryClientOptionsSchema = z.object({
+  name: z.string().optional(),
+  client_id: z.string().optional(),
+});
+export type QueryClientOptionsSchema = z.infer<typeof queryClientOptionsSchema>;

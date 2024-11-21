@@ -47,6 +47,7 @@ export const updateClient = async (
       website,
       phone_number: phone,
       fax_number: fax,
+      modified_at: new Date(),
     })
     .where(eq(tClients.id, id))
     .returning();

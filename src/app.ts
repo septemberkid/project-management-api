@@ -4,6 +4,7 @@ import authRoutes from '@/features/auth/route';
 import { StatusCode } from 'hono/utils/http-status';
 import { HTTPException } from 'hono/http-exception';
 import clientRoutes from '@/features/client/route';
+import projectRoutes from '@/features/project/route';
 
 const app = new Hono().basePath('/api/v1');
 
@@ -39,6 +40,7 @@ app.onError((err, c) => {
 });
 app.route('/auth', authRoutes);
 app.route('/clients', clientRoutes);
+app.route('/projects', projectRoutes);
 
 export default {
   port: 8787,
