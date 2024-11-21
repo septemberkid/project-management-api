@@ -2,7 +2,7 @@ import { dbClient } from '@/drizzle';
 import { tClients } from '@/drizzle/schemas';
 import { calculateTotalPages } from '@/utils';
 import { QueryClientSchema } from '@/features/client/schema';
-import { and, asc, desc, ilike } from 'drizzle-orm';
+import { and, asc, desc, eq, ilike } from 'drizzle-orm';
 
 export const getClient = async ({
   name,
@@ -36,4 +36,9 @@ export const getClient = async ({
     clients,
     total_pages: totalPages,
   };
+};
+export const retrieveClient = async (clientId: string) => {
+  return dbClient.query.tClients.findFirst({
+    where: (s) => eq(s.id, clientId),
+  });
 };

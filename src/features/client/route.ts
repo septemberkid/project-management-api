@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { getClient } from '@/features/client/queries';
+import { getClient, retrieveClient } from '@/features/client/queries';
 import { cookieMiddleware } from '@/cookie-middleware';
 import {
   createClientSchema,
@@ -12,6 +12,7 @@ import {
   deleteClient,
   updateClient,
 } from '@/features/client/actions';
+import { HTTPException } from 'hono/http-exception';
 
 const clientRoutes = new Hono()
   .get(
@@ -24,6 +25,16 @@ const clientRoutes = new Hono()
       return c.json(result);
     },
   )
+  .get('/:clientId', cookieMiddleware, async (c) => {
+    const { clientId } = c.req.param();
+    const result = await retrieveClient(clientId);
+    if (!result) {
+      throw new HTTPException(404, {
+        message: 'Client not found',
+      });
+    }
+    return c.json(result);
+  })
   .post(
     '/',
     cookieMiddleware,
