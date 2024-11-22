@@ -1,11 +1,11 @@
 import { dbClient } from '@/drizzle';
 import { tClients } from '@/drizzle/schemas';
-import { calculateTotalPages } from '@/utils';
+import { calculateTotalPages, getSortedFields } from '@/utils';
 import {
   QueryClientOptionsSchema,
   QueryClientSchema,
 } from '@/features/client/schema';
-import { and, asc, desc, eq, ilike, ne } from 'drizzle-orm';
+import { and, asc, eq, ilike, ne, sql } from 'drizzle-orm';
 
 export const clientIsExist = async (clientId: string) => {
   return (await dbClient.$count(tClients, eq(tClients.id, clientId))) > 0;
@@ -15,9 +15,16 @@ export const getClient = async ({
   address,
   page = '1',
   size = '10',
+  sort_by,
   sort_dir = 'asc',
 }: QueryClientSchema) => {
   const total = await dbClient.$count(tClients);
+  const { sortField, sortDir } = getSortedFields(
+    sort_by,
+    ['name'],
+    'name',
+    sort_dir,
+  );
   const clients = await dbClient.query.tClients.findMany({
     limit: Number(size),
     offset: (Number(page) - 1) * Number(size),
@@ -29,12 +36,7 @@ export const getClient = async ({
           : undefined,
       );
     },
-    orderBy: (s) => {
-      if (sort_dir == 'asc') {
-        return asc(s.name);
-      }
-      return desc(s.name);
-    },
+    orderBy: () => sql`${sql.identifier(sortField)} ${sql.raw(sortDir)}`,
   });
   const totalPages = calculateTotalPages(total, Number(size));
   return {

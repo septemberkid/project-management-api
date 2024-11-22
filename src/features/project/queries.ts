@@ -1,17 +1,25 @@
 import { dbClient } from '@/drizzle';
 import { tProjects } from '@/drizzle/schemas';
-import { calculateTotalPages } from '@/utils';
+import { calculateTotalPages, getSortedFields } from '@/utils';
 import { QueryProjectSchema } from '@/features/project/schema';
-import { and, asc, desc, eq, ilike } from 'drizzle-orm';
+import { and, eq, ilike, sql } from 'drizzle-orm';
 
 export const getProject = async ({
   name,
   client_id,
   page = '1',
   size = '10',
+  sort_by,
   sort_dir = 'asc',
 }: QueryProjectSchema) => {
   const total = await dbClient.$count(tProjects);
+  const { sortField, sortDir } = getSortedFields(
+    sort_by,
+    ['name', 'start_date', 'end_date'],
+    'name',
+    sort_dir,
+  );
+
   const projects = await dbClient.query.tProjects.findMany({
     limit: Number(size),
     offset: (Number(page) - 1) * Number(size),
@@ -23,12 +31,7 @@ export const getProject = async ({
           : undefined,
       );
     },
-    orderBy: (s) => {
-      if (sort_dir == 'asc') {
-        return asc(s.name);
-      }
-      return desc(s.name);
-    },
+    orderBy: () => sql`${sql.identifier(sortField)} ${sql.raw(sortDir)}`,
     with: {
       client: {
         columns: {

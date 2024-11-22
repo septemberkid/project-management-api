@@ -23,3 +23,25 @@ export function calculateTotalPages(total: number, limit: number) {
   }
   return Math.ceil(total / limit);
 }
+
+export function getSortedFields<T extends readonly string[]>(
+  sortBy: string | undefined,
+  allowedFields: T,
+  defaultField: T[number],
+  sortDir: 'asc' | 'desc' | string,
+) {
+  let sortedField: string | undefined = sortBy;
+  if (typeof sortedField == 'undefined') {
+    sortedField = defaultField;
+  }
+  if (sortedField && !allowedFields.includes(sortedField)) {
+    sortedField = defaultField;
+  }
+  if (sortDir !== 'asc' && sortDir !== 'desc') {
+    sortDir = 'asc';
+  }
+  return {
+    sortField: sortedField,
+    sortDir: sortDir,
+  };
+}
