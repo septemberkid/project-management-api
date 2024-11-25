@@ -12,7 +12,17 @@ export const getProject = async ({
   sort_by,
   sort_dir = 'asc',
 }: QueryProjectSchema) => {
-  const total = await dbClient.$count(tProjects);
+  const total = await dbClient.$count(
+    tProjects,
+    and(
+      name && name.trim().length > 0
+        ? ilike(tProjects.name, `%${name}%`)
+        : undefined,
+      client_id && client_id.trim().length > 0
+        ? eq(tProjects.client_id, client_id)
+        : undefined,
+    ),
+  );
   const { sortField, sortDir } = getSortedFields(
     sort_by,
     ['name', 'start_date', 'end_date'],

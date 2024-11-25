@@ -18,7 +18,17 @@ export const getClient = async ({
   sort_by,
   sort_dir = 'asc',
 }: QueryClientSchema) => {
-  const total = await dbClient.$count(tClients);
+  const total = await dbClient.$count(
+    tClients,
+    and(
+      name && name.trim().length > 0
+        ? ilike(tClients.name, `%${name}%`)
+        : undefined,
+      address && address.trim().length > 0
+        ? ilike(tClients.address, `%${address}%`)
+        : undefined,
+    ),
+  );
   const { sortField, sortDir } = getSortedFields(
     sort_by,
     ['name'],
